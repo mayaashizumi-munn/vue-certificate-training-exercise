@@ -1,11 +1,11 @@
-Vue.js Certificate exam preparation: https://certificates.dev/
-
 ---
 difficulty: 1
 chapter: "Chapter 1: Vue.js Essentials"
 training: true
 tags: vue
 ---
+
+Vue.js Certificate exam preparation: https://certificates.dev/
 
 # Create a Movie Rating App
 
