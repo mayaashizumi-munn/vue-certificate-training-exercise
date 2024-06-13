@@ -78,10 +78,12 @@ const getStarStyles = (rating: number | null): string => {
                 </div>
             </div>
         </div>
-        <AddMovieModal 
-            v-if="showAddMovieModal" 
-            @close="showAddMovieModal = false"
-        />
+        <Transition>
+            <AddMovieModal 
+                v-if="showAddMovieModal" 
+                @close="showAddMovieModal = false"
+            />
+        </Transition>
    </div>
 </template>
 
@@ -162,5 +164,16 @@ const getStarStyles = (rating: number | null): string => {
     border-radius: 8px;
     padding: 2px 0px;
     color: white;
+}
+
+/* Transition */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
