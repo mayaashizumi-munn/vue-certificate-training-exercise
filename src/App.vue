@@ -1,3 +1,61 @@
+<template>
+  <!-- This is where your template goes	-->
+   <div id="movies-page">
+        <button 
+            id="add-movie-button" 
+            @click="showAddMovieModal = true"
+        >
+            Add Movie
+        </button>
+        <div id="movies-container">
+            <div v-for="(movie, movieIndex) in movies" class="movie-card">
+                <StarIcon 
+                    :class="['star-icon', getStarStyles(movie.rating)]" 
+                />
+                <p class="star-label">{{ movie.rating ?? '-' }}</p>
+
+                <img :src="movie.image" :alt="`${movie.name} poster`" class="movie-image" />
+                <div class="details-container">
+                    <h2 class="text-xl font-semibold">{{ movie.name }}</h2>
+                    <div class="rating-container">
+                        <p class="text-sm">
+                            Rating ({{ movie.rating ?? '-' }}/5)
+                            <button 
+                                v-for="number in 5"
+                                @click="onStarClick(number, movieIndex)"
+                            >
+                                <FontAwesomeIcon 
+                                    :style="{color: getFullOrEmptyStarColor(number, movie.rating)}"
+                                    :icon="faStarFull"
+                                />
+                            </button>
+                        </p>
+                    </div>
+                    <div class="genre-container">
+                        <div v-for="genre in movie.genres" class="genre-tab">
+                            <p>{{ genre }}</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm description-text">{{ movie.description }}</p>
+                </div>
+            </div>
+        </div>
+        <Transition>
+            <AddMovieModal 
+                v-if="showAddMovieModal" 
+                v-model:name="newMovie.name"
+                v-model:image="newMovie.image"
+                v-model:description="newMovie.description"
+                v-model:selectedGenres="newMovie.genres"
+                v-model:isInTheatres="newMovie.inTheaters"
+                @addMovie="createMovie"
+                @close="resetAndCloseMovieModal"
+            />
+        </Transition>
+   </div>
+</template>
+
 <script setup lang="ts">
 import { items } from "./movies.json"
 import { ref, Ref } from "vue"
@@ -64,64 +122,6 @@ const resetAndCloseMovieModal = () => {
     showAddMovieModal.value = false
 }
 </script>
-
-<template>
-  <!-- This is where your template goes	-->
-   <div id="movies-page">
-        <button 
-            id="add-movie-button" 
-            @click="showAddMovieModal = true"
-        >
-            Add Movie
-        </button>
-        <div id="movies-container">
-            <div v-for="(movie, movieIndex) in movies" class="movie-card">
-                <StarIcon 
-                    :class="['star-icon', getStarStyles(movie.rating)]" 
-                />
-                <p class="star-label">{{ movie.rating ?? '-' }}</p>
-
-                <img :src="movie.image" :alt="`${movie.name} poster`" class="movie-image" />
-                <div class="details-container">
-                    <h2 class="text-xl font-semibold">{{ movie.name }}</h2>
-                    <div class="rating-container">
-                        <p class="text-sm">
-                            Rating ({{ movie.rating ?? '-' }}/5)
-                            <button 
-                                v-for="number in 5"
-                                @click="onStarClick(number, movieIndex)"
-                            >
-                                <FontAwesomeIcon 
-                                    :style="{color: getFullOrEmptyStarColor(number, movie.rating)}"
-                                    :icon="faStarFull"
-                                />
-                            </button>
-                        </p>
-                    </div>
-                    <div class="genre-container">
-                        <div v-for="genre in movie.genres" class="genre-tab">
-                            <p>{{ genre }}</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-sm description-text">{{ movie.description }}</p>
-                </div>
-            </div>
-        </div>
-        <Transition>
-            <AddMovieModal 
-                v-if="showAddMovieModal" 
-                v-model:name="newMovie.name"
-                v-model:image="newMovie.image"
-                v-model:description="newMovie.description"
-                v-model:selectedGenres="newMovie.genres"
-                v-model:isInTheatres="newMovie.inTheaters"
-                @addMovie="createMovie"
-                @close="resetAndCloseMovieModal"
-            />
-        </Transition>
-   </div>
-</template>
 
 <style scoped>
 #movies-page {
