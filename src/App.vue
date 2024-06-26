@@ -1,12 +1,19 @@
 <template>
   <!-- This is where your template goes	-->
    <div id="movies-page">
-        <button 
-            id="add-movie-button" 
-            @click="showAddMovieModal = true"
-        >
-            Add Movie
-        </button>
+        <div class="header">
+            <div>
+                <p class="text-sm text-white">Total movies: {{ movies.length }}</p>
+                <p class="text-sm text-white">Average rating: {{ averageRating }}/5</p>
+            </div>
+            <button 
+                id="add-movie-button" 
+                @click="showAddMovieModal = true"
+            >
+                Add Movie
+            </button>
+        </div>
+        
         <div id="movies-container">
             <div v-for="(movie, movieIndex) in movies" class="movie-card">
                 <StarIcon 
@@ -38,6 +45,15 @@
                     </div>
                     
                     <p class="text-sm description-text">{{ movie.description }}</p>
+
+                    <div class="actions">
+                        <button class="action-button" @click=editMovie(movieIndex)>
+                            <FontAwesomeIcon size="sm" :icon="faEdit" />
+                        </button>
+                        <button class="action-button" @click="deleteMovie(movieIndex)">
+                            <FontAwesomeIcon size="sm" :icon="faTrash" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -57,15 +73,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref, Ref, computed } from "vue"
 import { items } from "./movies.json"
-import { ref, Ref } from "vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faStar as faStarFull } from "@fortawesome/free-solid-svg-icons"
+import { faStar as faStarFull, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons"
 import { StarIcon } from "@heroicons/vue/24/solid"
 import AddMovieModal from "./AddMovieModal.vue"
 
 interface Movie {
-    id: number
+    id: number | null
     name: string
     description: string
     genres: string[]
@@ -78,13 +94,22 @@ const movies: Ref<Movie[]> = ref(items)
 
 const showAddMovieModal = ref(false)
 
-const newMovie = ref({
+const newMovie: Ref<Movie> = ref({
+    id: null,
     name: '',
     description: '',
     genres: [],
     image: '',
     inTheaters: false,
     rating: 0
+})
+
+const averageRating = computed(() => {
+    let totalAverage = 0;
+    movies.value.forEach((movie) => {
+        totalAverage += movie.rating ?? 0
+    })
+    return (totalAverage / (movies.value.length ?? 1)).toFixed(1)
 })
 
 const getFullOrEmptyStarColor = (starIndex: number, rating: number | null): string => {
@@ -102,16 +127,22 @@ const getStarStyles = (rating: number | null): string => {
 }
 
 const createMovie = () => {
-    const createNewMovie = {
-        id: movies.value.length,
-        ...newMovie.value
+    if (newMovie.value.id) {
+        movies[newMovie.value.id] = newMovie
+    } else {
+        const createNewMovie = {
+        ...newMovie.value,
+        id: movies.value.length
     }
     movies.value.push(createNewMovie)
+    }
+
     resetAndCloseMovieModal()
 }
 
 const resetAndCloseMovieModal = () => {
     newMovie.value = {
+        id: null,
         name: '',
         description: '',
         genres: [],
@@ -121,9 +152,26 @@ const resetAndCloseMovieModal = () => {
     }
     showAddMovieModal.value = false
 }
+
+const editMovie = (movieId: number) => {
+    const existingMovie = movies.value.at(movieId)
+    if (existingMovie) {
+        newMovie.value = existingMovie
+    }
+    showAddMovieModal.value = true
+}
+
+const deleteMovie = (movieId: number) => {
+    movies.value.splice(movieId, 1)
+}
 </script>
 
 <style scoped>
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
 #movies-page {
     max-width: 1200px;
     padding: 20px 30px;
@@ -144,6 +192,7 @@ const resetAndCloseMovieModal = () => {
     height: 100%;
     background: white;
     border-radius: 8px;
+    max-width: 320px;
 }
 
 .movie-image {
@@ -156,6 +205,7 @@ const resetAndCloseMovieModal = () => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    height: calc(100% - 400px);
 }
 
 .rating-container {
@@ -198,8 +248,22 @@ const resetAndCloseMovieModal = () => {
 #add-movie-button {
     background: rgb(0, 153, 255);
     border-radius: 8px;
-    padding: 2px 0px;
+    padding: 2px 12px;
     color: white;
+    width: fit-content;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 10px;
+    justify-content: right;
+}
+
+.action-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Transition */
