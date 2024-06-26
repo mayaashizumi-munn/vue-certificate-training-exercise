@@ -20,6 +20,15 @@ const movies: Ref<Movie[]> = ref(items)
 
 const showAddMovieModal = ref(false)
 
+const newMovie = ref({
+    name: '',
+    description: '',
+    genres: [],
+    image: '',
+    inTheaters: false,
+    rating: 0
+})
+
 const getFullOrEmptyStarColor = (starIndex: number, rating: number | null): string => {
     return rating && starIndex <= rating ? '#f5b642' : 'grey'
 }
@@ -32,6 +41,27 @@ const onStarClick = (starNumber: number, movieIndex: number) => {
 
 const getStarStyles = (rating: number | null): string => {
     return rating && rating > 0 ? 'text-yellow-500' : 'text-gray-500'
+}
+
+const createMovie = () => {
+    const createNewMovie = {
+        id: movies.value.length,
+        ...newMovie.value
+    }
+    movies.value.push(createNewMovie)
+    resetAndCloseMovieModal()
+}
+
+const resetAndCloseMovieModal = () => {
+    newMovie.value = {
+        name: '',
+        description: '',
+        genres: [],
+        image: '',
+        inTheaters: false,
+        rating: 0
+    }
+    showAddMovieModal.value = false
 }
 </script>
 
@@ -81,7 +111,13 @@ const getStarStyles = (rating: number | null): string => {
         <Transition>
             <AddMovieModal 
                 v-if="showAddMovieModal" 
-                @close="showAddMovieModal = false"
+                v-model:name="newMovie.name"
+                v-model:image="newMovie.image"
+                v-model:description="newMovie.description"
+                v-model:selectedGenres="newMovie.genres"
+                v-model:isInTheatres="newMovie.inTheaters"
+                @addMovie="createMovie"
+                @close="resetAndCloseMovieModal"
             />
         </Transition>
    </div>
